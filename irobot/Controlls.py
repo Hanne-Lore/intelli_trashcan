@@ -50,7 +50,7 @@ class Lynx:
         print "-----------------MOVING BASE----------------"
         
         if (position_degrees < 0 or position_degrees > 180):
-            print "You can only move the base from 0 to 180 degrees: " + position_degrees + "not correct!"
+            print "You can only move the base from 0 to 180 degrees: " + str(position_degrees) + " is not correct!"
         else:
             # this value corresponds to 180 degrees
             interval = self.BASE_MAX - self.BASE_MIN
@@ -70,6 +70,6 @@ class Lynx:
             
             
 l = Lynx()
-l.move_base(130)
+l.move_base(-1)
 
 
