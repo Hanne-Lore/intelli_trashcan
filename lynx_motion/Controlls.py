@@ -106,7 +106,7 @@ class Lynx:
                 self.ser.write(output_string)
                 self.motors[motor_name]['CURRENT_POS'] = new_position
         else:
-            print "You can only move the "+ motor_name +" from " + motor_data.get('MIN') + " to " + str(motor_data.get('MAX')) +": " + str(new_position) + " is not correct!"
+            print "You can only move the "+ motor_name +" from " + str(motor_data.get('MIN')) + " to " + str(motor_data.get('MAX')) +": " + str(new_position) + " is not correct!"
     
     def move_to_starting_position(self):
         self.move_general(90, self.BASE_NAME)
@@ -114,7 +114,7 @@ class Lynx:
         self.move_general(0, self.LOWER_JOINT_NAME)
         self.move_general(90, self.UPPER_JOINT_NAME)
         self.move_general(90, self.ZOMBIE_WRIST_NAME)
-        self.move_general(0, self.CLAW_NAME)
+        self.move_general(50, self.CLAW_NAME)
         
         pprint.PrettyPrinter().pprint(self.motors)
         
@@ -122,10 +122,13 @@ class Lynx:
         
         print "Duration:" + str(duration) + " Start pos: " + str(starting_position) + "    End pos: " + str(ending_position) + " Current time: " + str(current_time)
         print "Ret position: " + str(starting_position + (ending_position - starting_position) * current_time / duration)
-        return starting_position + (ending_position - starting_position) * current_time / duration
+        print "Rel: " + str(current_time / duration)
+        print "Edning positions: " + str(ending_position)
+        print "Starting positions: " + str(starting_position)
+        return starting_position + (ending_position - starting_position) * (current_time / duration)
         
             
-    def move_smoothly(self, motors_position, time_interval):
+    def move_smoothly(self, motors_positions, time_interval):
         print "\n-------------- MOVE SMOOTHLY -----------------\n"
         starting_time = time.time() * 1000
         ending_time = starting_time + time_interval
@@ -134,7 +137,8 @@ class Lynx:
         
         for motor_name, final_pos in motors_positions.iteritems():
             interval = self.motors[motor_name].get('MAX')- self.motors[motor_name].get('MIN')
-            new_position = (interval * final_pos) / self.motors[motor_name].get('MAX_DEGREE') + self.motors[motor_name].get('MIN')
+            final_pos_real = (interval * final_pos) / self.motors[motor_name].get('MAX_DEGREE') + self.motors[motor_name].get('MIN')
+            new_position = [ final_pos_real ,self.motors[motor_name]['CURRENT_POS']]
             motors_positions[motor_name]= new_position
         
         while( current_time < ending_time ):
@@ -142,38 +146,62 @@ class Lynx:
             
             print "Iteration\n"
             
-            for motor_name, final_pos in motors_positions.items():
+            for motor_name, positions in motors_positions.items():
+                final_pos = positions[0]
+                start_pos = positions[1]
                 print motor_name + "\n\n"
-                new_position = self.get_smooth_position(time_interval, self.motors[motor_name]['CURRENT_POS'], final_pos, delta_time)
+                new_position = self.get_smooth_position(time_interval, start_pos, final_pos, delta_time)
                 #print motor_name + " position: " + str(new_position)
                 self.move_general_real(new_position, motor_name)
             
-            time.sleep(0.001)
+            self.ser.flush()
             current_time = time.time() * 1000
         
         print "Smooth motion done\n"
         
-        for motor_name, final_pos in motors_positions.items():
-            self.move_general_real(final_pos, motor_name)
-            self.motors[motor_name]['CURRENT_POS'] = final_pos
-            
+        for motor_name, positions in motors_positions.items():
+            self.move_general_real(positions[0], motor_name)
+            self.motors[motor_name]['CURRENT_POS'] = positions[0]
+        
         #pprint.PrettyPrinter().pprint(self.motors)
         
                 
 l = Lynx()
 l.move_to_starting_position()
-time.sleep(1);
-#l.move_general_smoothly(50, l.CLAW_NAME)
+time.sleep(3);
 motors_positions = {
-                        l.BASE_NAME: 120,
-                        l.FLOWER_POWER_NAME: 60,
-                        l.LOWER_JOINT_NAME: 30,
-                        l.UPPER_JOINT_NAME: 40,
-                        l.ZOMBIE_WRIST_NAME: 45,
-                        l.CLAW_NAME: 30
+                        l.BASE_NAME: 90,
+                        l.FLOWER_POWER_NAME: 45,
+                        l.LOWER_JOINT_NAME: 116,
+                        l.UPPER_JOINT_NAME: 155,
+                        l.ZOMBIE_WRIST_NAME: 90,
+                        l.CLAW_NAME: 50
                     
                     }
-#l.move_smoothly(motors_positions, 10000)
+l.move_smoothly(motors_positions, 3000)
+time.sleep(1);
+
+close_claw = {
+                l.CLAW_NAME: 24,
+             }
+l.move_smoothly(close_claw, 1000)
+
+motors_positions1 = {
+                        l.FLOWER_POWER_NAME: 100,
+                        l.LOWER_JOINT_NAME: 0,
+                        l.UPPER_JOINT_NAME: 180,
+                    
+                    }
+l.move_smoothly(motors_positions1, 10000)
+
+open_claw = {
+                l.CLAW_NAME: 40,
+             }
+l.move_smoothly(open_claw, 1000)
+
+
+
+
 
 
 
