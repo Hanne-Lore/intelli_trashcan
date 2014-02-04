@@ -222,7 +222,11 @@ class SerialCommandInterface(object):
   """
   def __init__(self, tty, baudrate):
     self.ser = serial.Serial(tty, baudrate=baudrate, timeout=SERIAL_TIMEOUT)
-    self.ser.open()
+    try:
+        self.ser.open()
+    except:
+        self.ser.close()
+        self.ser.open()
     self.opcodes = {}
     self.lock = threading.RLock()
 
@@ -450,7 +454,7 @@ class Roomba(object):
 
   """Represents a Roomba robot."""
 
-  def __init__(self, tty='/dev/ttyUSB0'):
+  def __init__(self, tty='COM3'):
     self.tty = tty
     self.sci = SerialCommandInterface(tty, 57600)
     self.sci.AddOpcodes(ROOMBA_OPCODES)
@@ -591,7 +595,7 @@ class Create(Roomba):
 
   """Represents a Create robot."""
 
-  def __init__(self, tty='/dev/ttyUSB0'):
+  def __init__(self, tty='COM3'):
     super(Create, self).__init__(tty)
     self.sci.AddOpcodes(CREATE_OPCODES)
     self.sensors = CreateSensors(self)
@@ -625,3 +629,86 @@ class Create(Roomba):
     self.sci.soft_reset()
     time.sleep(START_DELAY)
     self.Passive()
+
+
+### iRobotController & iRobotCommand objects --- To be used by the main method ###
+
+from smooth import getSpeeds
+import time
+
+class iRobotCommand:
+    CommandType = ""
+    Duration = 0
+    Distance = 0
+    Velocity =""
+    Direction = ""
+    
+    def __init__(self, commandType, duration, velocity, direction, distance):
+        self.CommandType = commandType
+        self.Duration = duration
+        self.Velocity = velocity
+        self.Direction = direction
+        self.Distance = distance
+
+class iRobotController:
+    CommandHistory = []
+    
+    controller = Create()
+    controller.Control()
+     
+     ## HELPER FUNCTIONS ##   
+    def smoothDrive(self, dist, duration, radius):    # Positive radius: to the left
+        sleepTime = 0.1
+        steps = duration/sleepTime
+        for speed in getSpeeds(dist, steps):
+            newSp = speed/sleepTime
+            self.controller.Drive(newSp, radius)
+            print(newSp)
+            time.sleep(sleepTime)
+            
+    def smoothDriveStraight(self, dist, duration):
+        self.smoothDrive(dist, duration, RADIUS_STRAIGHT)
+    ## END HELPER FUNCTIONS ##
+    
+    ## MOVEMENT COMMANDS ##
+    def Turn(self, velocity, direction, addToHistory = False):
+        self.controller.TurnInPlace(velocity, direction)
+        time.sleep(4)
+        self.controller.Stop()
+        if addToHistory:
+            pass
+            #self.CommandHistory.append(iRobotCommand("Turn", 0, velocity, direction, 0))
+        
+    def SlowMoveForward(self, seconds, addToHistory = False):
+        self.smoothDriveStraight(100, seconds)
+        if addToHistory:
+            pass
+            #self.CommandHistory.append(iRobotCommand("SlowMoveForward", seconds, 0, "", 100))
+        
+    def MoveForward(self, distance, seconds, addToHistory = False):
+        self.smoothDriveStraight(distance, seconds)
+        if addToHistory:
+            self.CommandHistory.append(iRobotCommand("MoveForward", seconds, 0, "", distance))
+            
+    ## END MOVEMENT COMMANDS ##
+    
+    def MoveToInitialPosition(self):
+        self.Turn(107, 'cw')
+        for command in self.CommandHistory[::-1]:
+            if command.CommandType == "MoveForward":
+                self.MoveForward(command.Distance, command.Duration)
+#             elif command.CommandType == "Turn":
+#                 oppositeDirection = 'cw' if command.Direction == 'cw' else 'ccw'
+#                 print 'moving back using "' + oppositeDirection + '" direction' 
+#                 self.Turn(command.Velocity, oppositeDirection)
+        self.Turn(107, 'ccw')
+    
+if __name__=='__main__':
+    
+    SLOW_TURN_VELOCITY = 50
+    NORMAL_TURN_VELOCITY = 100
+    
+    controller = iRobotController()
+    controller.MoveForward(500, 5, True)
+    controller.MoveForward(500, 5, True)
+    controller.MoveToInitialPosition()
