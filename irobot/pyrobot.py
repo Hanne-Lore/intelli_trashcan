@@ -676,8 +676,7 @@ class iRobotController:
         time.sleep(4)
         self.controller.Stop()
         if addToHistory:
-            pass
-            #self.CommandHistory.append(iRobotCommand("Turn", 0, velocity, direction, 0))
+            self.CommandHistory.append(iRobotCommand("Turn", 0, velocity, direction, 0))
         
     def SlowMoveForward(self, seconds, addToHistory = False):
         self.smoothDriveStraight(100, seconds)
@@ -686,22 +685,21 @@ class iRobotController:
             #self.CommandHistory.append(iRobotCommand("SlowMoveForward", seconds, 0, "", 100))
         
     def MoveForward(self, distance, seconds, addToHistory = False):
-        self.smoothDriveStraight(distance, seconds)
+        self.smoothDriveStraight(distance * (-1), seconds)
         if addToHistory:
             self.CommandHistory.append(iRobotCommand("MoveForward", seconds, 0, "", distance))
             
     ## END MOVEMENT COMMANDS ##
     
     def MoveToInitialPosition(self):
-        self.Turn(107, 'cw')
+        #self.Turn(107, 'cw')
         for command in self.CommandHistory[::-1]:
             if command.CommandType == "MoveForward":
-                self.MoveForward(command.Distance, command.Duration)
-#             elif command.CommandType == "Turn":
-#                 oppositeDirection = 'cw' if command.Direction == 'cw' else 'ccw'
-#                 print 'moving back using "' + oppositeDirection + '" direction' 
-#                 self.Turn(command.Velocity, oppositeDirection)
-        self.Turn(107, 'ccw')
+                self.MoveForward((-1) * command.Distance, command.Duration)
+            elif command.CommandType == "Turn":
+                oppositeDirection = 'cw' if command.Direction == 'cw' else 'ccw'
+                self.Turn(200 - command.Velocity, oppositeDirection)
+        #self.Turn(107, 'ccw')
     
 if __name__=='__main__':
     
@@ -710,5 +708,12 @@ if __name__=='__main__':
     
     controller = iRobotController()
     controller.MoveForward(500, 5, True)
+    controller.Turn(50, 'cw', True)
+    controller.MoveForward(500, 5, True)
+    controller.Turn(50, 'ccw', True)
+    controller.MoveForward(500, 5, True)
+    controller.Turn(50, 'ccw', True)
+    controller.MoveForward(1000, 5, True)
+    controller.Turn(50, 'cw', True)
     controller.MoveForward(500, 5, True)
     controller.MoveToInitialPosition()
