@@ -71,7 +71,7 @@ class Lynx:
               }
     def __init__(self):
 
-        self.ser = serial.Serial(port='/dev/ttyUSB0', baudrate=115200)
+        self.ser = serial.Serial(port='COM3', baudrate=115200)
 
         if (self.ser.isOpen()):
             print "is open"
@@ -110,7 +110,9 @@ class Lynx:
     
     def move_to_starting_position(self):
         self.move_general(90, self.BASE_NAME)
+        time.sleep(1);
         self.move_general(90, self.FLOWER_POWER_NAME)
+        time.sleep(1);
         self.move_general(0, self.LOWER_JOINT_NAME)
         self.move_general(90, self.UPPER_JOINT_NAME)
         self.move_general(90, self.ZOMBIE_WRIST_NAME)
@@ -168,12 +170,12 @@ class Lynx:
                 
 l = Lynx()
 l.move_to_starting_position()
-time.sleep(3);
+time.sleep(1);
 motors_positions = {
                         l.BASE_NAME: 90,
-                        l.FLOWER_POWER_NAME: 45,
+                        l.FLOWER_POWER_NAME: 10,
                         l.LOWER_JOINT_NAME: 116,
-                        l.UPPER_JOINT_NAME: 155,
+                        l.UPPER_JOINT_NAME: 180,
                         l.ZOMBIE_WRIST_NAME: 90,
                         l.CLAW_NAME: 50
                     
@@ -182,24 +184,36 @@ l.move_smoothly(motors_positions, 3000)
 time.sleep(1);
 
 close_claw = {
-                l.CLAW_NAME: 24,
+                l.CLAW_NAME: 18,
              }
 l.move_smoothly(close_claw, 1000)
 
 motors_positions1 = {
-                        l.FLOWER_POWER_NAME: 100,
+                        l.FLOWER_POWER_NAME: 90,
                         l.LOWER_JOINT_NAME: 0,
-                        l.UPPER_JOINT_NAME: 180,
+                        l.UPPER_JOINT_NAME: 140,
                     
                     }
 l.move_smoothly(motors_positions1, 10000)
 
 open_claw = {
-                l.CLAW_NAME: 40,
+                l.CLAW_NAME: 50,
              }
 l.move_smoothly(open_claw, 1000)
 
 
+start_positions = {
+                        l.BASE_NAME: 90,
+                        l.FLOWER_POWER_NAME: 90,
+                        l.LOWER_JOINT_NAME: 0,
+                        l.UPPER_JOINT_NAME: 90,
+                        l.ZOMBIE_WRIST_NAME: 90,
+                        l.CLAW_NAME: 30
+                    
+                    }
+
+time.sleep(2);
+l.move_smoothly(start_positions, 2000)
 
 
 

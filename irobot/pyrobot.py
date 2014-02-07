@@ -712,6 +712,7 @@ if __name__=='__main__':
     controller.MoveForward(500, 5, True)
     controller.Turn(50, 'ccw', True)
     controller.MoveForward(500, 5, True)
+    
     controller.Turn(50, 'ccw', True)
     controller.MoveForward(1000, 5, True)
     controller.Turn(50, 'cw', True)
