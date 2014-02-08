@@ -166,12 +166,8 @@ class Lynx:
             self.motors[motor_name]['CURRENT_POS'] = positions[0]
         
         #pprint.PrettyPrinter().pprint(self.motors)
-        
-                
-l = Lynx()
-l.move_to_starting_position()
-time.sleep(1);
-motors_positions = {
+    def move_down(self):
+        motors_positions = {
                         l.BASE_NAME: 90,
                         l.FLOWER_POWER_NAME: 10,
                         l.LOWER_JOINT_NAME: 116,
@@ -180,29 +176,32 @@ motors_positions = {
                         l.CLAW_NAME: 50
                     
                     }
-l.move_smoothly(motors_positions, 3000)
-time.sleep(1);
-
-close_claw = {
+        self.move_smoothly(motors_positions, 3000)
+        
+    def close_claw(self):
+        close_claw = {
                 l.CLAW_NAME: 18,
-             }
-l.move_smoothly(close_claw, 1000)
-
-motors_positions1 = {
+        }
+        
+        self.move_smoothly(close_claw, 1000)
+        
+    def move_up(self):
+        motors_positions = {
                         l.FLOWER_POWER_NAME: 90,
                         l.LOWER_JOINT_NAME: 0,
                         l.UPPER_JOINT_NAME: 140,
                     
                     }
-l.move_smoothly(motors_positions1, 10000)
-
-open_claw = {
+        l.move_smoothly(motors_positions, 10000)
+        
+    def open_claw(self):
+        open_claw = {
                 l.CLAW_NAME: 50,
              }
-l.move_smoothly(open_claw, 1000)
-
-
-start_positions = {
+        self.move_smoothly(open_claw, 1000)
+        
+    def move_starting_positions_smoothly(self):
+        start_positions = {
                         l.BASE_NAME: 90,
                         l.FLOWER_POWER_NAME: 90,
                         l.LOWER_JOINT_NAME: 0,
@@ -212,12 +211,16 @@ start_positions = {
                     
                     }
 
-time.sleep(2);
-l.move_smoothly(start_positions, 2000)
+        self.move_smoothly(start_positions, 2000)
+                
+l = Lynx()
+l.move_to_starting_position()
 
-
-
-
-
-
-
+time.sleep(1)
+l.move_down()
+time.sleep(1)
+l.close_claw()
+l.move_up()
+l.open_claw()
+time.sleep(1)
+l.move_starting_positions_smoothly()
