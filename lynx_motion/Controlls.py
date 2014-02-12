@@ -71,7 +71,7 @@ class Lynx:
               }
     def __init__(self):
 
-        self.ser = serial.Serial(port='COM3', baudrate=115200)
+        self.ser = serial.Serial(port='/dev/ttyUSB0', baudrate=115200)
 
         if (self.ser.isOpen()):
             print "is open"
@@ -113,8 +113,8 @@ class Lynx:
         time.sleep(1);
         self.move_general(90, self.FLOWER_POWER_NAME)
         time.sleep(1);
-        self.move_general(0, self.LOWER_JOINT_NAME)
         self.move_general(90, self.UPPER_JOINT_NAME)
+        self.move_general(0, self.LOWER_JOINT_NAME)
         self.move_general(90, self.ZOMBIE_WRIST_NAME)
         self.move_general(50, self.CLAW_NAME)
         
@@ -169,9 +169,9 @@ class Lynx:
     def move_down(self):
         motors_positions = {
                         l.BASE_NAME: 90,
-                        l.FLOWER_POWER_NAME: 10,
-                        l.LOWER_JOINT_NAME: 116,
-                        l.UPPER_JOINT_NAME: 180,
+                        l.FLOWER_POWER_NAME: 27,
+                        l.LOWER_JOINT_NAME: 40,
+                        l.UPPER_JOINT_NAME: 12,
                         l.ZOMBIE_WRIST_NAME: 90,
                         l.CLAW_NAME: 50
                     
