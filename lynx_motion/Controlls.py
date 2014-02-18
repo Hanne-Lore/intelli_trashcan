@@ -71,7 +71,7 @@ class Lynx:
               }
     def __init__(self):
 
-        self.ser = serial.Serial(port='/dev/ttyUSB0', baudrate=115200)
+        self.ser = serial.Serial(port='COM3', baudrate=115200)
 
         if (self.ser.isOpen()):
             print "is open"
@@ -168,46 +168,50 @@ class Lynx:
         #pprint.PrettyPrinter().pprint(self.motors)
     def move_down(self):
         motors_positions = {
-                        l.BASE_NAME: 90,
-                        l.FLOWER_POWER_NAME: 27,
-                        l.LOWER_JOINT_NAME: 40,
-                        l.UPPER_JOINT_NAME: 12,
-                        l.ZOMBIE_WRIST_NAME: 90,
-                        l.CLAW_NAME: 50
+                        self.BASE_NAME: 90,
+                        #self.FLOWER_POWER_NAME: 27,
+                        self.FLOWER_POWER_NAME:10,
+#                         self.LOWER_JOINT_NAME: 40,
+                        self.LOWER_JOINT_NAME: 80,
+                        
+                        #self.UPPER_JOINT_NAME: 40,
+                        self.UPPER_JOINT_NAME : 160,
+                        self.ZOMBIE_WRIST_NAME: 90,
+                        self.CLAW_NAME: 50
                     
                     }
         self.move_smoothly(motors_positions, 3000)
         
     def close_claw(self):
         close_claw = {
-                l.CLAW_NAME: 18,
+                self.CLAW_NAME: 18,
         }
         
         self.move_smoothly(close_claw, 1000)
         
     def move_up(self):
         motors_positions = {
-                        l.FLOWER_POWER_NAME: 90,
-                        l.LOWER_JOINT_NAME: 0,
-                        l.UPPER_JOINT_NAME: 140,
+                        self.FLOWER_POWER_NAME: 90,
+                        self.LOWER_JOINT_NAME: 0,
+                        self.UPPER_JOINT_NAME: 140,
                     
                     }
-        l.move_smoothly(motors_positions, 10000)
+        self.move_smoothly(motors_positions, 10000)
         
     def open_claw(self):
         open_claw = {
-                l.CLAW_NAME: 50,
+                self.CLAW_NAME: 50,
              }
         self.move_smoothly(open_claw, 1000)
         
     def move_starting_positions_smoothly(self):
         start_positions = {
-                        l.BASE_NAME: 90,
-                        l.FLOWER_POWER_NAME: 90,
-                        l.LOWER_JOINT_NAME: 0,
-                        l.UPPER_JOINT_NAME: 90,
-                        l.ZOMBIE_WRIST_NAME: 90,
-                        l.CLAW_NAME: 30
+                        self.BASE_NAME: 90,
+                        self.FLOWER_POWER_NAME: 90,
+                        self.LOWER_JOINT_NAME: 0,
+                        self.UPPER_JOINT_NAME: 90,
+                        self.ZOMBIE_WRIST_NAME: 90,
+                        self.CLAW_NAME: 30
                     
                     }
 
@@ -215,7 +219,7 @@ class Lynx:
                 
 l = Lynx()
 l.move_to_starting_position()
-
+   
 time.sleep(1)
 l.move_down()
 time.sleep(1)

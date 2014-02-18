@@ -663,7 +663,7 @@ class iRobotController:
         for speed in getSpeeds(dist, steps):
             newSp = speed/sleepTime
             self.controller.Drive(newSp, radius)
-            print(newSp)
+            # print(newSp)
             time.sleep(sleepTime)
             
     def smoothDriveStraight(self, dist, duration):
@@ -707,14 +707,14 @@ if __name__=='__main__':
     NORMAL_TURN_VELOCITY = 100
     
     controller = iRobotController()
-    controller.MoveForward(500, 5, True)
-    controller.Turn(50, 'cw', True)
-    controller.MoveForward(500, 5, True)
-    controller.Turn(50, 'ccw', True)
-    controller.MoveForward(500, 5, True)
-    
-    controller.Turn(50, 'ccw', True)
-    controller.MoveForward(1000, 5, True)
-    controller.Turn(50, 'cw', True)
-    controller.MoveForward(500, 5, True)
-    controller.MoveToInitialPosition()
+#     controller.MoveForward(500, 5, True)
+    controller.Turn(2, 'ccw', True)
+#     controller.MoveForward(500, 5, True)
+#     controller.Turn(50, 'ccw', True)
+#     controller.MoveForward(500, 5, True)
+#     
+#     controller.Turn(50, 'ccw', True)
+#     controller.MoveForward(1000, 5, True)
+#     controller.Turn(50, 'cw', True)
+#     controller.MoveForward(500, 5, True)
+#     controller.MoveToInitialPosition()

@@ -12,6 +12,8 @@ class ImageProcessor:
         self.circleImg = cv2.imread("opencv/circle.jpg", 0)
         self.circleContours, nothing = cv2.findContours(self.circleImg, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         self.circleContour = self.circleContours[0]
+        
+        self.blurSize = 15
             
     
     """
@@ -22,12 +24,16 @@ class ImageProcessor:
     def detectGarbage(self, frame):
         # Convert to hsv
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        hsv = cv2.medianBlur(hsv, 11)
+        hsv = cv2.medianBlur(hsv, self.blurSize)
+        
         
         # Create masks for blue, red and yellow
         masks = []
-        masks.append(cv2.inRange(hsv, np.array([80, 50, 0]), np.array([100, 255, 255]))) # Blue mask
+        masks.append(cv2.inRange(hsv, np.array([80, 60, 0]), np.array([100, 255, 255]))) # Blue mask
+        # masks.append(cv2.inRange(hsv, np.array([60, 2, 0]), np.array([160, 255, 255]))) # Blue mask
         masks.append(cv2.inRange(hsv, np.array([0, 130, 40]), np.array([10, 255, 255]))) # Red mask
+        red2 = cv2.inRange(hsv, np.array([170, 130, 40]), np.array([180, 255, 255])) # Red mask 2
+        cv2.bitwise_or(masks[1], red2, masks[1])
         masks.append(cv2.inRange(hsv, np.array([20, 130, 40]), np.array([30, 255, 255]))) # Yellow mask
         
         # Find the contours
@@ -49,7 +55,6 @@ class ImageProcessor:
                     # Check the similarity with a circle
                     circleSimilarity = cv2.matchShapes(contour[j], self.circleContour, cv2.cv.CV_CONTOURS_MATCH_I1, 0)
                     if circleSimilarity > 1: continue;
-                    print circleSimilarity
                     
                     # Get the area of the contour
                     newArea = cv2.contourArea(contour[j])
@@ -71,8 +76,10 @@ class ImageProcessor:
                 radius = int (radius)
                 
                 # Draw the circle
+                frame = cv2.medianBlur(frame, self.blurSize)
                 cv2.circle(frame, center, radius, (0, 255, 0), 2)
 #                 cv2.drawContours(frame, contour[cnt], -1, (0, 255, 0))
+                
                 
                 # Garbage detected
                 return [center, radius, frame]
