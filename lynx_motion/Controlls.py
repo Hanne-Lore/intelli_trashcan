@@ -71,7 +71,7 @@ class Lynx:
               }
     def __init__(self):
 
-        self.ser = serial.Serial(port='COM3', baudrate=115200)
+        self.ser = serial.Serial(port='COM4', baudrate=115200)
 
         if (self.ser.isOpen()):
             print "is open"
@@ -91,10 +91,10 @@ class Lynx:
             if (new_position >= motor_data.get('MIN') and new_position <= motor_data.get('MAX')):
                 
                 output_string = '#' + str(motor_data.get('SSC_POS')) + 'P' + str(new_position) + '\r'
-                print "-----------start moving "+ motor_name +": " + output_string
+#                 print "-----------start moving "+ motor_name +": " + output_string
                 self.ser.write(output_string)
                 self.motors[motor_name]['CURRENT_POS'] = new_position
-                print "-----------done moving BASE " + str(position_degrees) + " degrees"
+#                 print "-----------done moving BASE " + str(position_degrees) + " degrees"
                 
                 
     def move_general_real(self, new_position, motor_name):
@@ -102,7 +102,7 @@ class Lynx:
         motor_data = self.motors.get(motor_name)
         if (new_position >= motor_data.get('MIN') and new_position <= motor_data.get('MAX')): 
                 output_string = '#' + str(motor_data.get('SSC_POS')) + 'P' + str(new_position) + '\r'
-                print "-----------start moving "+ motor_name +": " + output_string
+#                 print "-----------start moving "+ motor_name +": " + output_string
                 self.ser.write(output_string)
                 self.motors[motor_name]['CURRENT_POS'] = new_position
         else:
@@ -118,20 +118,20 @@ class Lynx:
         self.move_general(90, self.ZOMBIE_WRIST_NAME)
         self.move_general(50, self.CLAW_NAME)
         
-        pprint.PrettyPrinter().pprint(self.motors)
+        # pprint.PrettyPrinter().pprint(self.motors)
         
     def get_smooth_position(self, duration, starting_position, ending_position, current_time):
         
-        print "Duration:" + str(duration) + " Start pos: " + str(starting_position) + "    End pos: " + str(ending_position) + " Current time: " + str(current_time)
-        print "Ret position: " + str(starting_position + (ending_position - starting_position) * current_time / duration)
-        print "Rel: " + str(current_time / duration)
-        print "Edning positions: " + str(ending_position)
-        print "Starting positions: " + str(starting_position)
+#         print "Duration:" + str(duration) + " Start pos: " + str(starting_position) + "    End pos: " + str(ending_position) + " Current time: " + str(current_time)
+#         print "Ret position: " + str(starting_position + (ending_position - starting_position) * current_time / duration)
+#         print "Rel: " + str(current_time / duration)
+#         print "Edning positions: " + str(ending_position)
+#         print "Starting positions: " + str(starting_position)
         return starting_position + (ending_position - starting_position) * (current_time / duration)
         
             
     def move_smoothly(self, motors_positions, time_interval):
-        print "\n-------------- MOVE SMOOTHLY -----------------\n"
+#         print "\n-------------- MOVE SMOOTHLY -----------------\n"
         starting_time = time.time() * 1000
         ending_time = starting_time + time_interval
         
@@ -146,12 +146,12 @@ class Lynx:
         while( current_time < ending_time ):
             delta_time = current_time - starting_time
             
-            print "Iteration\n"
+#             print "Iteration\n"
             
             for motor_name, positions in motors_positions.items():
                 final_pos = positions[0]
                 start_pos = positions[1]
-                print motor_name + "\n\n"
+#                 print motor_name + "\n\n"
                 new_position = self.get_smooth_position(time_interval, start_pos, final_pos, delta_time)
                 #print motor_name + " position: " + str(new_position)
                 self.move_general_real(new_position, motor_name)
@@ -159,7 +159,7 @@ class Lynx:
             self.ser.flush()
             current_time = time.time() * 1000
         
-        print "Smooth motion done\n"
+#         print "Smooth motion done\n"
         
         for motor_name, positions in motors_positions.items():
             self.move_general_real(positions[0], motor_name)
@@ -169,13 +169,13 @@ class Lynx:
     def move_down(self):
         motors_positions = {
                         self.BASE_NAME: 90,
-                        #self.FLOWER_POWER_NAME: 27,
-                        self.FLOWER_POWER_NAME:10,
-#                         self.LOWER_JOINT_NAME: 40,
-                        self.LOWER_JOINT_NAME: 80,
+                        self.FLOWER_POWER_NAME: 27,
+#                         self.FLOWER_POWER_NAME:10,
+                        self.LOWER_JOINT_NAME: 35,
+#                         self.LOWER_JOINT_NAME: 80,
                         
-                        #self.UPPER_JOINT_NAME: 40,
-                        self.UPPER_JOINT_NAME : 160,
+                        self.UPPER_JOINT_NAME: 25,
+#                         self.UPPER_JOINT_NAME : 160,
                         self.ZOMBIE_WRIST_NAME: 90,
                         self.CLAW_NAME: 50
                     
@@ -217,14 +217,14 @@ class Lynx:
 
         self.move_smoothly(start_positions, 2000)
                 
-l = Lynx()
-l.move_to_starting_position()
-   
-time.sleep(1)
-l.move_down()
-time.sleep(1)
-l.close_claw()
-l.move_up()
-l.open_claw()
-time.sleep(1)
-l.move_starting_positions_smoothly()
+# l = Lynx()
+# l.move_to_starting_position()
+#         
+# time.sleep(1)
+# l.move_down()
+# time.sleep(1)
+# # l.close_claw()
+# # l.move_up()
+# # l.open_claw()
+# time.sleep(1)
+# # l.move_starting_positions_smoothly()

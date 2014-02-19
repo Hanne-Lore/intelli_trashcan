@@ -9,9 +9,11 @@ class ImageProcessor:
         self.PI = 3.14159265
         
         # Compute the circle's contour
-        self.circleImg = cv2.imread("opencv/circle.jpg", 0)
-        self.circleContours, nothing = cv2.findContours(self.circleImg, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        self.circleContour = self.circleContours[0]
+        circle = cv2.imread("opencv/circle.jpg")
+        circleGray = cv2.cvtColor(circle, cv2.COLOR_BGR2GRAY)
+        ret, self.circleImg = cv2.threshold(circleGray, 127, 255, 0)
+        self.circleContours, nothing = cv2.findContours(self.circleImg, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        self.circleContour = self.circleContours[1]
         
         self.blurSize = 15
             
@@ -29,12 +31,17 @@ class ImageProcessor:
         
         # Create masks for blue, red and yellow
         masks = []
-        masks.append(cv2.inRange(hsv, np.array([80, 60, 0]), np.array([100, 255, 255]))) # Blue mask
-        # masks.append(cv2.inRange(hsv, np.array([60, 2, 0]), np.array([160, 255, 255]))) # Blue mask
-        masks.append(cv2.inRange(hsv, np.array([0, 130, 40]), np.array([10, 255, 255]))) # Red mask
-        red2 = cv2.inRange(hsv, np.array([170, 130, 40]), np.array([180, 255, 255])) # Red mask 2
+        # Blue mask
+        masks.append(cv2.inRange(hsv, np.array([80, 60, 0]), np.array([100, 255, 255]))) 
+        # masks.append(cv2.inRange(hsv, np.array([60, 2, 0]), np.array([160, 255, 255]))) 
+        
+        # Red mask
+        masks.append(cv2.inRange(hsv, np.array([0, 40, 40]), np.array([10, 255, 255]))) 
+        red2 = cv2.inRange(hsv, np.array([175, 10, 40]), np.array([180, 255, 255]))
         cv2.bitwise_or(masks[1], red2, masks[1])
-        masks.append(cv2.inRange(hsv, np.array([20, 130, 40]), np.array([30, 255, 255]))) # Yellow mask
+        
+        # Yellow mask
+        masks.append(cv2.inRange(hsv, np.array([20, 130, 40]), np.array([30, 255, 255]))) 
         
         # Find the contours
         contours = [None, None, None]
@@ -54,7 +61,7 @@ class ImageProcessor:
                 for j in range(0, len(contour)):
                     # Check the similarity with a circle
                     circleSimilarity = cv2.matchShapes(contour[j], self.circleContour, cv2.cv.CV_CONTOURS_MATCH_I1, 0)
-                    if circleSimilarity > 1: continue;
+                    if circleSimilarity > 0.2: continue;
                     
                     # Get the area of the contour
                     newArea = cv2.contourArea(contour[j])
@@ -64,6 +71,12 @@ class ImageProcessor:
                     
                     # If it's the largest, set it as the found contour
                     if newArea > maxArea:
+                        # Get the minimum enclosing circle for the contour
+#                         (x, y), radius = cv2.minEnclosingCircle(contour[j])
+                        
+#                         if y < 240:
+#                             print 'below'
+                        
                         cnt = j
                         maxArea = newArea
                 
@@ -77,6 +90,7 @@ class ImageProcessor:
                 
                 # Draw the circle
                 frame = cv2.medianBlur(frame, self.blurSize)
+                cv2.drawContours(frame, contour, cnt, (0,0,255),2)
                 cv2.circle(frame, center, radius, (0, 255, 0), 2)
 #                 cv2.drawContours(frame, contour[cnt], -1, (0, 255, 0))
                 

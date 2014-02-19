@@ -32,8 +32,7 @@ lynx.move_to_starting_position()
 positionAverage = [[0, 0], 0]
 averageFramesNr = 12
 currentAverageFrame = 0
-frameCenter = [175, 240]
-centerThreshold = 5
+frameCenter = [180, 240]
 distanceThreshold = 25
 firstFind = True
 
@@ -48,17 +47,14 @@ def getSpeedByDistance(dist):
 
 def getPixelsPerRotation(diameter):
     return (diameter * 14.83) / 62.5
-#     if diameter > 90:
-#         return 9
-#     if diameter > 70:
-#         return 8.7
-#     if diameter > 60:
-#         return 8.5
-#     if diameter > 50:
-#         return 8.35
-#     if diameter > 40:
-#         return 8.2
-#     return 8
+
+def getRotThreshold(dist):
+    if dist > 200:
+        return 50
+    elif dist > 100:
+        return 40
+    else:
+        return 30
 
 while True:
     # Get a frame
@@ -76,7 +72,7 @@ while True:
         positionAverage[0][0] += garbage[0][0] * 0.75
         positionAverage[0][1] += garbage[0][1] * 0.75
         positionAverage[1] += garbage[1] * 0.75
-    elif currentAverageFrame == averageFramesNr:
+    elif currentAverageFrame == averageFramesNr and garbage != None:
         if firstFind:
             firstFind = False
         else:
@@ -89,16 +85,33 @@ while True:
             rotVelocity = floor(abs(positionAverage[0][0] - frameCenter[0]) / pixelsPerRotation)
             print positionAverage
             
+            
+            cv2.circle(garbage[2], (int(positionAverage[0][0]), int(positionAverage[0][1])), 10, (0, 0, 255), 2)
+            
             moved = False
-            if (positionAverage[0][0] < frameCenter[0] - centerThreshold or positionAverage[0][0] > frameCenter[0] + centerThreshold) and rotVelocity >= 2:
+            print 'veloc = '+`rotVelocity`
+            if rotVelocity < 2:
+                rotVelocity = 2
+                
+            # Calculate the ~ distance
+            area = PI * (garbage[1] ** 2)
+            diameter = garbage[1] * 2
+#             distance = (150 * 182) / diameter
+#             distance -= 150
+            distance = (125 * 228) / diameter
+            distance -= 125
+            
+            print "Diameter: "+`diameter`
+            
+            centerThreshold = getRotThreshold(distance)
+            if (positionAverage[0][0] < frameCenter[0] - centerThreshold or positionAverage[0][0] > frameCenter[0] + centerThreshold):
                 print 'Rotate '+direction+': '+`rotVelocity`+' (ppr: '+`pixelsPerRotation`+')'
                 controller.Turn(rotVelocity, direction, True)
                 moved = True
             else:
-                area = PI * (garbage[1] ** 2)
-                diameter = garbage[1] * 2
-                distance = (150 * 182) / diameter
-                distance -= 120
+                if distance > 300:
+                    distance = 300
+                    
                 print 'Raw distance: '+`distance`
                 if distance < distanceThreshold and distance > -distanceThreshold:
                     distance = 0
@@ -119,7 +132,7 @@ while True:
                 
             print positionAverage
     
-    # frame = cv2.medianBlur(frame, 11)
+    frame = cv2.medianBlur(frame, 11)
     
     # controller.MoveForward(500, 5, True)
     
