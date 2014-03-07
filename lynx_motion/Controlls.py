@@ -219,12 +219,12 @@ class Lynx:
                 
 # l = Lynx()
 # l.move_to_starting_position()
-#         
+#                   
 # time.sleep(1)
 # l.move_down()
 # time.sleep(1)
-# # l.close_claw()
-# # l.move_up()
-# # l.open_claw()
+# l.close_claw()
+# l.move_up()
+# l.open_claw()
 # time.sleep(1)
-# # l.move_starting_positions_smoothly()
+# l.move_starting_positions_smoothly()

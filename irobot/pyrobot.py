@@ -686,6 +686,7 @@ class iRobotController:
         
     def MoveForward(self, distance, seconds, addToHistory = False):
         self.smoothDriveStraight(distance * (-1), seconds)
+#         self.controller.DriveStraight(distance * (-1), seconds)
         if addToHistory:
             self.CommandHistory.append(iRobotCommand("MoveForward", seconds, 0, "", distance))
             
